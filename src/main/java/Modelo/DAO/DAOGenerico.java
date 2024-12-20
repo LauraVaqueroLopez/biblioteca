@@ -12,19 +12,11 @@ public class DAOGenerico<T, ID> {
     private EntityManager em;
     private Class<T> entityClass;
 
-    /**
-     * Constructor que recibe la clase de la entidad a manejar.
-     * @param entityClass Clase de la entidad.
-     */
     public DAOGenerico(Class<T> entityClass) {
         this.em = Conexion.getEntityManager();
         this.entityClass = entityClass;
     }
 
-    /**
-     * Agrega una entidad a la base de datos.
-     * @param t Entidad a agregar.
-     */
     public void add(T t) {
         EntityTransaction tx = em.getTransaction();
         try {
