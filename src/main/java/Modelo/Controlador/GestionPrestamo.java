@@ -19,21 +19,18 @@ public class GestionPrestamo {
         this.daoEjemplar = new DAOGenerico<>(Ejemplar.class);
     }
 
-    // Método para solicitar un préstamo
     public void solicitarPrestamo(Usuario usuario, String isbn) {
-        // Validar si el usuario tiene una penalización activa
+
         if (usuario.getPenalizacionHasta() != null && usuario.getPenalizacionHasta().isAfter(LocalDate.now())) {
             System.out.println("No puedes realizar nuevos préstamos debido a una penalización activa.");
             return;
         }
 
-        // Verificar si el usuario tiene menos de 3 préstamos activos
         if (usuario.getPrestamos().size() >= 3) {
             System.out.println("No puedes tener más de 3 préstamos activos.");
             return;
         }
 
-        // Obtener el libro por ISBN
         List<Ejemplar> ejemplaresDisponibles = daoEjemplar.getEm()
                 .createQuery("SELECT e FROM Ejemplar e WHERE e.isbn = :isbn AND e.estado = 'Disponible'", Ejemplar.class)
                 .setParameter("isbn", isbn)
@@ -44,24 +41,19 @@ public class GestionPrestamo {
             return;
         }
 
-        // Tomamos el primer ejemplar disponible
         Ejemplar ejemplar = ejemplaresDisponibles.get(0);
 
-        // Crear el préstamo
         Prestamo prestamo = new Prestamo();
         prestamo.setUsuario(usuario);
         prestamo.setEjemplar(ejemplar);
         prestamo.setFechaInicio(LocalDate.now());
-        prestamo.setFechaDevolucion(LocalDate.now().plusDays(15)); // Fecha de devolución a 15 días
+        prestamo.setFechaDevolucion(LocalDate.now().plusDays(15));
 
-        // Guardamos el préstamo
         daoPrestamo.add(prestamo);
 
-        // Cambiar el estado del ejemplar a 'Prestado'
         ejemplar.setEstado("Prestado");
         daoEjemplar.update(ejemplar);
 
-        // Mostrar mensaje de éxito
         System.out.println("Préstamo realizado exitosamente. Fecha de devolución: " + prestamo.getFechaDevolucion());
     }
 
@@ -82,7 +74,7 @@ public class GestionPrestamo {
 
     // Método para ver los préstamos de un usuario específico
     public void verPrestamosPorUsuario(String email) {
-        List<Prestamo> prestamos = daoPrestamo.findByEmail(email); // Supuesto método en el DAO que busca por email
+        List<Prestamo> prestamos = daoPrestamo.findByEmail(email);
         if (prestamos.isEmpty()) {
             System.out.println("El usuario con el email " + email + " no tiene préstamos.");
         } else {
@@ -99,8 +91,8 @@ public class GestionPrestamo {
     public void devolverLibro(int idPrestamo) {
         Prestamo prestamo = daoPrestamo.find(idPrestamo);
         if (prestamo != null) {
-            prestamo.getEjemplar().setEstado("Disponible"); // Actualiza el estado del ejemplar a 'Disponible'
-            prestamo.setFechaDevolucion(java.time.LocalDate.now()); // Establece la fecha de devolución actual
+            prestamo.getEjemplar().setEstado("Disponible");
+            prestamo.setFechaDevolucion(java.time.LocalDate.now());
             daoPrestamo.update(prestamo);
             System.out.println("Libro devuelto correctamente.");
         } else {

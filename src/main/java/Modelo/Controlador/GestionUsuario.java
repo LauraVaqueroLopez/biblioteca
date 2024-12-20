@@ -36,7 +36,6 @@ public class GestionUsuario {
                 .setParameter("password", password)
                 .getResultList();
 
-        // Si la lista está vacía, no hay usuario con ese email y password
         return usuarios.isEmpty() ? null : usuarios.get(0);
     }
 
